@@ -82,9 +82,9 @@
 				    :type "lisp"))))
 
 (defun find-module (name)
-  (make-pathname :directory *contrib-dir*
-		 :name name
-		 :type "lisp"))
+  (merge-pathnames *contrib-dir*
+                   (make-pathname :name name
+                                  :type "lisp")))
 
 (defcommand load-module (name) ((:module "Load Module: "))
   "Loads the contributed module with the given NAME."
