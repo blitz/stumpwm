@@ -18,6 +18,11 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
 ;; Boston, MA 02111-1307 USA
 
+#+ecl (progn
+        (require :sockets)
+        (require :asdf)
+        (require :clx))
+
 (defpackage :stumpwm
   (:use :cl)
   (:shadow #:yes-or-no-p #:y-or-n-p))

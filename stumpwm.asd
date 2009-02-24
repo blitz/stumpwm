@@ -11,7 +11,7 @@
 	  (ignore-errors (require :cmucl-clx))
 	  (ignore-errors (require :clx)))
 
-#+ecl (progn
+#+ecl (unless (find-package "XLIB") 
         (require :sockets)
         (require :clx))
 
