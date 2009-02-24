@@ -11,6 +11,10 @@
 	  (ignore-errors (require :cmucl-clx))
 	  (ignore-errors (require :clx)))
 
+#+ecl (progn
+        (require :sockets)
+        (require :clx))
+
 (defsystem :stumpwm
   :name "StumpWM"
   :author "Shawn Betts <sabetts@vcn.bc.ca>"
