@@ -478,36 +478,23 @@ FOCUS-WINDOW is an extra window used for _NET_SUPPORTING_WM_CHECK."
 
 ;;; Head functions
 
-(defun head-by-number (screen n)
-  (find n (screen-heads screen) :key 'head-number))
-
-(defun parse-xinerama-head (line)
-  (ppcre:register-groups-bind (('parse-integer number width height x y))
-                              ("^ +head #([0-9]+): ([0-9]+)x([0-9]+) @ ([0-9]+),([0-9]+)" line :sharedp t)
-                              (handler-case
-                                  (make-head :number number
-                                             :x x :y y
-                                             :width width
-                                             :height height)
-                                (parse-error ()
-                                  nil))))
-
 (defun make-screen-heads (screen root)
   "or use xdpyinfo to query the xinerama extension, if it's enabled."
   (or (and (xlib:query-extension *display* "XINERAMA")
+           (xinerama:xinerama-is-active *display*)
            (with-current-screen screen
-             ;; Ignore 'clone' heads.
              (loop
-                for i = 0 then (1+ i)
-                for h in
-                (delete-duplicates
-                 (loop for i in (split-string (run-shell-command "xdpyinfo -ext XINERAMA" t))
-                    for head = (parse-xinerama-head i)
-                    when head
-                    collect head)
-                 :test #'frames-overlap-p)
-                do (setf (head-number h) i)
-                collect h)))
+                for screen in (xinerama:xinerama-query-screens *display*)
+                for head = (make-head :number (xinerama:screen-info-number screen)
+                                      :x (xinerama:screen-info-x screen)
+                                      :y (xinerama:screen-info-y screen)
+                                      :width (xinerama:screen-info-width screen)
+                                      :height (xinerama:screen-info-height screen))
+                when (notany (lambda (frame)
+                               (frames-overlap-p head frame))
+                             heads)
+                  collect head into heads
+                finally (return heads))))
       (list (make-head :number 0
                        :x 0 :y 0
                        :width (xlib:drawable-width root)
@@ -517,7 +504,6 @@ FOCUS-WINDOW is an extra window used for _NET_SUPPORTING_WM_CHECK."
 (defun copy-heads (screen)
   "Return a copy of screen's heads."
   (mapcar 'copy-frame (screen-heads screen)))
-
 
 ;; Determining a frame's head based on position probably won't
 ;; work with overlapping heads. Would it be better to walk
