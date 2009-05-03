@@ -1,37 +1,41 @@
 The Stump Window Manager
 ------------------------
 
-Stumpwm is a window manager written entirely in Common Lisp. It
+StumpWM is a window manager written entirely in Common Lisp. It
 attempts to be highly customizable while relying entirely on the
 keyboard for input. You will not find buttons, icons, title bars, tool
-bars, or any of the other conventional GUI widgets. 
+bars, or any of the other conventional GUI widgets.
 
 These design decisions reflect the growing popularity of productive,
-customizable lisp based systems.
+customizable Lisp-based systems.
 
-Build & Start Stumpwm
+Build & Start StumpWM
 ---------------------
 
 Prerequisites
 =============
 
-* a common lisp distribution. clisp and SBCL both work.
-* clx
-* cl-ppcre
+* a supported Common Lisp distribution. CLISP and SBCL both
+  work. Other Lisp implementations may or may not work.
 
-If you intend to use sbcl you need to install portable-clx. If you're
-using clisp, make sure you use at least version 2.42 and that clisp is
-compiled with new-clx. As of clisp 2.42, new-clx works fine with
-stumpwm. Any version before that is too buggy to run stumpwm.
+* CLX, the X bindings for Common Lisp.
+* CL-PPCRE, the great regular expression library.
 
-You can use asdf-install to install lisp libraries:
-  $ sbcl
+If you intend to use SBCL, you need to install portable-clx. If you
+are using CLISP, make sure you use at least version 2.42 and that
+CLISP is compiled with new-clx. As of CLISP 2.42, new-clx works fine
+with StumpWM. Any version before that is too buggy to run StumpWM.
+
+You can use ASDF-INSTALL to install Lisp libraries:
+  $ SBCL
     * (require 'asdf)
     * (require 'asdf-install)
     * (asdf-install:install 'clx)
     * (asdf-install:install 'cl-ppcre)
 
-If using clisp, you'll need to install asdf first to use asdf-install.
+If using CLISP, you will need to install asdf first to use
+asdf-install.
+
   $ mkdir -p ~/.cl/asdf && cd ~/.cl
   $ wget http://cclan.cvs.sourceforge.net/*checkout*/cclan/asdf/asdf.lisp -O ~/.cl/asdf/asdf.lisp
   $ echo "(load #p\"/home/USER/.cl/asdf/asdf\")" >> ~/.clisprc.lisp
@@ -51,7 +55,8 @@ available.
 Building
 ========
 
-Building stumpwm from CVS requires that you build the configure script:
+Building StumpWM from CVS requires that you build the configure
+script:
 
 $ autoconf
 
@@ -59,12 +64,13 @@ If there's already a configure script then just run it.
 
 $ ./configure
 
-By default stumpwm elects sbcl. If you have both installed, you can
-explicitly select clisp like so:
+By default, StumpWM elects SBCL. If you have both installed, you can
+explicitly select CLISP like so:
 
 $ ./configure --with-lisp=clisp
 
-If your lisps are in strange places you may need to tell the script where to find them:
+If your Lisps are in strange places, you may need to tell the script
+where to find them:
 
 $ configure --with-sbcl=/home/sabetts/opt/bin/sbcl --with-clisp=/usr/local/downstairs/to/the/left/clisp
 
@@ -72,39 +78,35 @@ Now build it:
 
 $ make
 
-If all goes well, you should have a stumpwm binary now. Sorry there's
-no install yet. Just copy the binary wherever you want or run it out
-of the stumpwm/ directory.
+If all goes well, you should have a `stumpwm' binary now. Sorry, there
+is no install yet. Just copy the binary wherever you want or run it
+out of the stumpwm/ directory.
 
 Now that you have a binary, call it from your ~/.xinitrc file:
 
 $ echo /path/to/stumpwm >> ~/.xinitrc
 $ startx
 
-Hopefully that will put you in X running stumpwm!
+Hopefully that will put you in X running StumpWM!
 
-SBCL And Threads
-----------------
+SBCL
+----
 
-SBCL compiled with threads causes problems with stumpwm. The most
-common is sluggishness. It may also cause stumpwm to become
-unresponsive. If you use SBCL, consider using a version built without
-threads.
+SBCL causes StumpWM to hang occasionally for some people. The problem
+seems to be aggravated by using the modeline. You can use (load-module
+"sbclfix") in your .stumpwmrc to workaround this problem.
 
 Help
 ----
 
-There's a texinfo manual, stumpwm.texi. the build scripts generate an
-info file you can read in emacs or with the `info' program.
+A Texinfo manual is available in stumpwm.texi. The build scripts
+generate an info file you can read in emacs or with the `info'
+program.
 
-For other stuff visit the stumpwm wiki: 
-
-http://stumpwm.antidesktop.net/
-
-There's a #stumpwm channel on irc.freenode.net, too.
-
-Questions?
-----------
+The StumpWM wiki at http://stumpwm.antidesktop.net/ is a great
+resource for most problems.
 
 See http://stumpwm.nongnu.org/community.html for more information on
-contacting stumpwm developers and users.
+contacting StumpWM developers and users.
+
+There is a #stumpwm channel on irc.freenode.net, too.
