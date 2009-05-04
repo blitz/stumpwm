@@ -93,11 +93,6 @@ if test "$MAKEINFO" = "no"; then
    AC_MSG_ERROR([Please install makeinfo for the manual.])
 fi
 
-AC_CHECK_PROG(XDPYINFO,xdpyinfo,yes,no)
-if test "$XDPINFO" = "no"; then
-   AC_MSG_WARN([xdpyinfo is needed for xinerama support.])
-fi
-
 if test "$LISP" = "clisp"; then
    AC_CHECK_FILE([$PPCRE_PATH/cl-ppcre.asd],,AC_MSG_ERROR([Cannot find ppcre. When using clisp you must specify its location using --with-ppcre]))
 fi
