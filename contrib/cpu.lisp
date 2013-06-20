@@ -130,9 +130,18 @@ utilization."
 				    (pathname-directory
 				     (first (list-directory "/proc/acpi/thermal_zone/"))))))
 
+;; TODO: need to probe not only thermal_zone0 but thermal_zone[0-9] too
+(defvar *sys-thermal-zone* "/sys/class/thermal/thermal_zone0/temp")
+
+;; Changed: now function can determine what type of interface(old /proc or a new /sys) is used
 (defun fmt-cpu-temp (ml)
   "Returns a string representing the current CPU temperature."
   (declare (ignore ml))
-  (get-proc-file-field (concatenate 'string "/proc/acpi/thermal_zone/"
-                                    *acpi-thermal-zone* "/temperature")
-                       "temperature"))
+  (cond ((boundp '*acpi-thermal-zone*)
+         (get-proc-file-field old-proc-filespec "temperature"))
+        ((probe-file *sys-thermal-zone*)
+         (with-open-file (s *sys-thermal-zone* :if-does-not-exist nil)
+             (if s
+                 (let ((raw-value (parse-integer (read-line s nil nil))))
+                   (format nil "t°: ~D " (/ raw-value 1000))))))
+        (t (format nil "t°: unavaliable "))))
