@@ -33,7 +33,8 @@
           add-screen-mode-line-formatter
 	  enable-mode-line
 	  toggle-mode-line
-	  bar-zone-color))
+	  bar-zone-color
+      bar))
 
 (defstruct mode-line
   screen
