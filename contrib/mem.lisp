@@ -41,7 +41,8 @@
 
 ;; Install formatters.
 (dolist (a '((#\M fmt-mem-usage)
-             (#\N fmt-mem-usage-bar)))
+             (#\N fmt-mem-usage-bar)
+             (#\P fmt-swap-usage)))
   (pushnew a *screen-mode-line-formatters* :test 'equal))
 
 ;; Defaults arguments for fmt-mem-usage-bar
@@ -71,6 +72,19 @@ total amount of memory, allocated memory, allocated/total ratio"
       (setq allocated (- mem-total (+ mem-free buffers cached)))
       (list mem-total allocated (/ allocated mem-total)))))
 
+(defun swap-usage ()
+  "Returns a list containing 3 values:
+total, allocated, allocated/total ratio"
+  (let ((allocated 0))
+    (multiple-value-bind (swap-total swap-free)
+        (with-open-file
+         (file #P"/proc/meminfo" :if-does-not-exist nil)
+         (values
+          (read-from-string (get-proc-fd-field file "SwapTotal"))
+          (read-from-string (get-proc-fd-field file "SwapFree"))))
+      (setq allocated (- swap-total swap-free))
+      (list swap-total allocated (/ allocated swap-total)))))
+     
 (defun fmt-mem-usage (ml)
   "Returns a string representing the current percent of used memory."
   (declare (ignore ml))
@@ -84,3 +98,11 @@ total amount of memory, allocated memory, allocated/total ratio"
   (declare (ignore ml))
   (let ((cpu (truncate (* 100 (nth 2 (mem-usage))))))
     (stumpwm::bar cpu width full empty)))
+
+(defun fmt-swap-usage (ml)
+  "Returns a string representing the current percent of used swap."
+  (declare (ignore ml))
+  (let* ((swap (swap-usage))
+         (|%| (truncate (* 100 (nth 2 swap))))
+         (allocated (truncate (/ (nth 1 swap) 1000))))
+    (format nil "SWAP: ~4D mb ^[~A~3D%^] " allocated (bar-zone-color |%|) |%|)))

@@ -34,9 +34,10 @@
 ;;;
 ;;; This is specific to Linux.
 
-(in-package :stumpwm)
+(defpackage :stumpwm.contrib.cpu
+  (:use :common-lisp :stumpwm :cl-ppcre))
 
-(export '(*acpi-thermal-zone*))
+(in-package :stumpwm.contrib.cpu)
 
 ;; Install formatters.
 (dolist (a '((#\c fmt-cpu-usage)
@@ -126,13 +127,25 @@ utilization."
 	(format nil "~,2FGHz" (/ mhz 1000))
 	(format nil "~DMHz" mhz))))
 
-(defvar *acpi-thermal-zone* (first (last
-				    (pathname-directory
-				     (first (list-directory "/proc/acpi/thermal_zone/"))))))
-
+;; Changes: function can determine what type of interface(old /proc or a new /sys) is used
 (defun fmt-cpu-temp (ml)
   "Returns a string representing the current CPU temperature."
   (declare (ignore ml))
-  (get-proc-file-field (concatenate 'string "/proc/acpi/thermal_zone/"
-                                    *acpi-thermal-zone* "/temperature")
-                       "temperature"))
+  (let ((proc-filespec "/proc/acpi/thermal_zone/")
+        (sys-filespec "/sys/class/thermal/thermal_zone0/temp"))
+    (cond ((not (null (list-directory proc-filespec)))
+           (get-proc-file-field
+            (concatenate 'string
+                         proc-filespec
+                         (first (last
+                                 (pathname-directory
+                                  (first
+                                   (list-directory proc-filespec)))))
+                         "/temperature")
+            "temperature"))
+          ((probe-file sys-filespec)
+           (with-open-file (s  sys-filespec :if-does-not-exist nil)
+                           (if s
+                               (let ((raw-value (parse-integer (read-line s nil nil))))
+                                 (format nil "t°: ~D " (/ raw-value 1000))))))
+          (t (format nil "t°: unavaliable ")))))
